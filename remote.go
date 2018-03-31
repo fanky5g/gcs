@@ -48,13 +48,10 @@ func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, key, bucketName s
 }
 
 // Upload takes a request object and an optional key parameter and returns an UploadOutput object
-func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string) ([]*FileMetadata, *string, error) {
+func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName, gcloudAccessID string, privKey []byte) (*FileMetadata, error) {
 	if body == nil {
-		return nil, nil, ErrBodyEmpty
+		return nil, ErrBodyEmpty
 	}
-
-	var uploaded []*FileMetadata
-	// mimetype := GetMimeType(filename)
 
 	reader, writer := io.Pipe()
 	var size uint64
@@ -73,7 +70,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 	ret, err := gcloudAgent.createFile(reader, key, bucketName)
 
 	if err != nil {
-		return uploaded, nil, err
+		return nil, err
 	}
 
 	formatted, err := gcloudAgent.FormatFile(&File{
@@ -82,19 +79,17 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		ActualSize: uint64(ret.Size),
 		Key:        key,
 		Location:   ret.MediaLink,
-	})
+	}, gcloudAccessID, privKey)
 
 	if err != nil {
-		return uploaded, nil, err
+		return nil, err
 	}
 
-	uploaded = append(uploaded, formatted)
-
-	return uploaded, nil, nil
+	return formatted, nil
 }
 
 // GetSignedURL returns downloadable file path for a private file
-func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key string) (*string, error) {
+func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key, accessID string, privKey []byte) (*string, error) {
 	if bucketName == "" {
 		return nil, ErrBucketEmpty
 	}
@@ -104,8 +99,8 @@ func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key string) (*st
 	}
 
 	opts := &storage.SignedURLOptions{
-		GoogleAccessID: gcloudAgent.GoogleAccessID,
-		PrivateKey:     []byte(gcloudAgent.PrivateKey),
+		GoogleAccessID: accessID,
+		PrivateKey:     privKey,
 		Method:         "GET",
 		Expires:        time.Now().UTC().Add(time.Minute * 5),
 	}

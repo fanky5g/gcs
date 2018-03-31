@@ -1,31 +1,36 @@
 package gcs
 
 import (
-	"encoding/json"
-
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
+	"google.golang.org/api/option"
 )
 
 // CreateClient creates a gcloud storage client
-func CreateClient(serviceAccountDetails []byte) (*GCloudStorageAgent, error) {
+func CreateClient(serviceAccountPath string) (*GCloudStorageAgent, error) {
 	ctx := context.Background()
-	storageClient, err := storage.NewClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+	var storageClient *storage.Client
 
-	var cfg config
-	err = json.Unmarshal(serviceAccountDetails, &cfg)
-	if err != nil {
-		return nil, err
+	if serviceAccountPath != "" {
+		c, err := storage.NewClient(ctx, option.WithServiceAccountFile(serviceAccountPath))
+
+		if err != nil {
+			return nil, err
+		}
+
+		storageClient = c
+	} else {
+		c, err := storage.NewClient(ctx) //application default credentials
+
+		if err != nil {
+			return nil, err
+		}
+
+		storageClient = c
 	}
 
 	client := &GCloudStorageAgent{
-		Client:         storageClient,
-		ProjectID:      cfg.ProjectID,
-		GoogleAccessID: cfg.ClientEmail,
-		PrivateKey:     cfg.PrivateKey,
+		Client: storageClient,
 	}
 
 	return client, nil

@@ -14,7 +14,7 @@ var (
 )
 
 // CreateBucket creates a new GCloud Bucket
-func (gcloudAgent *GCloudStorageAgent) CreateBucket(BucketName string) (*storage.BucketHandle, error) {
+func (gcloudAgent *GCloudStorageAgent) CreateBucket(BucketName, projectID string) (*storage.BucketHandle, error) {
 	if BucketName == "" {
 		return nil, ErrBucketEmpty
 	}
@@ -22,7 +22,7 @@ func (gcloudAgent *GCloudStorageAgent) CreateBucket(BucketName string) (*storage
 	bucket := gcloudAgent.Bucket(BucketName)
 	ctx := context.Background()
 
-	if err := bucket.Create(ctx, gcloudAgent.ProjectID, nil); err != nil {
+	if err := bucket.Create(ctx, projectID, nil); err != nil {
 		return nil, err
 	}
 

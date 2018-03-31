@@ -18,9 +18,6 @@ type Uploader interface {
 // GCloudStorageAgent contains useful abstractions for file storage and manipulations on gcloud
 type GCloudStorageAgent struct {
 	*storage.Client
-	GoogleAccessID string
-	PrivateKey     string
-	ProjectID      string
 }
 
 // File encloses file properties

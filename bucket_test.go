@@ -1,7 +1,6 @@
 package gcs
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"testing"
@@ -13,13 +12,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	cfg := config{}
-	v, err := json.Marshal(cfg)
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := CreateClient(v)
+	c, err := CreateClient("")
 
 	if err != nil {
 		log.Fatal(err)
