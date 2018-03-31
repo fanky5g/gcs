@@ -1,0 +1,20 @@
+package: gitlab.com/fanky5g/gcs
+import:
+- package: cloud.google.com/go
+  version: ^0.20.0
+  subpackages:
+  - storage
+- package: github.com/rubenfonseca/fastimage
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/api
+  subpackages:
+  - iterator
+- package: github.com/twinj/uuid
+  version: ^1.0.0
+testImport:
+- package: github.com/stretchr/testify
+  version: ^1.2.1
+  subpackages:
+  - assert
