@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"cloud.google.com/go/storage"
+	"gitlab.com/fanky5g/files"
 	"golang.org/x/net/context"
 
 	"time"
@@ -66,7 +67,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		size = uint64(s)
 	}()
 
-	key := GenUniqueFileKey(filename)
+	key := files.GenUniqueKey(filename)
 	ret, err := gcloudAgent.createFile(reader, key, bucketName)
 
 	if err != nil {
