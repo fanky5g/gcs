@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/rubenfonseca/fastimage"
-	"gitlab.com/fanky5g/files"
+	"gitlab.com/fanky5g/gofiles"
 )
 
 // FormatFile formats a file and returns its metadata

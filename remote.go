@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	"cloud.google.com/go/storage"
-	"gitlab.com/fanky5g/files"
+	"gitlab.com/fanky5g/gofiles"
 	"golang.org/x/net/context"
 
 	"time"
