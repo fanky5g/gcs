@@ -4,10 +4,11 @@ import (
 	"strings"
 
 	"github.com/rubenfonseca/fastimage"
+	"cloud.google.com/go/storage"
 )
 
 // FormatFile formats a file and returns its metadata
-func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File) (*FileMetadata, error) {
+func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, opts *storage.SignedURLOptions) (*FileMetadata, error) {
 	mimetype := GetMimeType(file.Key)
 
 	out := &FileMetadata{
@@ -21,7 +22,7 @@ func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File) (*FileMetadata, er
 
 	if strings.Contains(out.MimeType, "image") {
 		// get signed url
-		url, err := gcloudAgent.GetSignedURL(out.Bucket, out.Key, nil)
+		url, err := gcloudAgent.GetSignedURL(out.Bucket, out.Key, opts)
 		if err != nil {
 			return nil, err
 		}

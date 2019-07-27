@@ -46,7 +46,7 @@ func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, key, bucketName s
 }
 
 // Upload takes a request object and an optional key parameter and returns an UploadOutput object
-func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string) (*FileMetadata, error) {
+func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string, opts *storage.SignedURLOptions) (*FileMetadata, error) {
 	if body == nil {
 		return nil, ErrBodyEmpty
 	}
@@ -77,7 +77,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		ActualSize: uint64(ret.Size),
 		Key:        key,
 		Location:   ret.MediaLink,
-	})
+	}, opts)
 
 	if err != nil {
 		return nil, err
