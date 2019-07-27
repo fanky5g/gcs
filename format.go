@@ -4,12 +4,11 @@ import (
 	"strings"
 
 	"github.com/rubenfonseca/fastimage"
-	"gitlab.com/fanky5g/gofiles"
 )
 
 // FormatFile formats a file and returns its metadata
 func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, accessID string, privKey []byte) (*FileMetadata, error) {
-	mimetype := files.GetMimeType(file.Key)
+	mimetype := GetMimeType(file.Key)
 
 	out := &FileMetadata{
 		FileName: file.FileName,
