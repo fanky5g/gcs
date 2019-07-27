@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"path/filepath"
 
 	"log"
 	"sync"
@@ -69,7 +70,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		size = uint64(s)
 	}()
 
-	key := GenUniqueKey(filename)
+	key := filepath.Join(filepath.Dir(filename), GenUniqueKey(filename))
 	ret, err := gcloudAgent.createFile(reader, aclRules, key, bucketName)
 
 	if err != nil {
