@@ -18,6 +18,7 @@ func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, opts *storage.Sign
 		Bucket:   file.Bucket,
 		URL:      file.Location,
 		FileSize: file.Size,
+		LastModified: file.LastModified,
 	}
 
 	if strings.Contains(out.MimeType, "image") {

@@ -81,6 +81,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		ActualSize: uint64(ret.Size),
 		Key:        key,
 		Location:   ret.MediaLink,
+		LastModified: ret.Updated,
 	}, opts)
 
 	if err != nil {

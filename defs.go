@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"time"
 
 	"database/sql/driver"
 
@@ -29,6 +30,7 @@ type File struct {
 	Size       uint64
 	ActualSize uint64
 	AuthorID   uint8
+	LastModified time.Time
 }
 
 //FileMetadata type returns File metadata for uploaded files
@@ -39,6 +41,7 @@ type FileMetadata struct {
 	MimeType string `json:"mime"`
 	Bucket   string `json:"bucket"`
 	URL      string `json:"url"`
+	LastModified time.Time `json:"last_modified"`
 
 	// image fields, omitted if not set
 	Image *Image `json:"image" sql:"type:jsonb"`
