@@ -13,8 +13,6 @@ import (
 
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
-
-	"time"
 )
 
 var (
@@ -48,7 +46,7 @@ func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, key, bucketName s
 }
 
 // Upload takes a request object and an optional key parameter and returns an UploadOutput object
-func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName, gcloudAccessID string, privKey []byte) (*FileMetadata, error) {
+func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string) (*FileMetadata, error) {
 	if body == nil {
 		return nil, ErrBodyEmpty
 	}
@@ -79,7 +77,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		ActualSize: uint64(ret.Size),
 		Key:        key,
 		Location:   ret.MediaLink,
-	}, gcloudAccessID, privKey)
+	})
 
 	if err != nil {
 		return nil, err
@@ -89,7 +87,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 }
 
 // GetSignedURL returns downloadable file path for a private file
-func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key, accessID string, privKey []byte) (*string, error) {
+func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key string, opts *storage.SignedURLOptions) (*string, error) {
 	if bucketName == "" {
 		return nil, ErrBucketEmpty
 	}
@@ -98,12 +96,12 @@ func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key, accessID st
 		return nil, ErrKeyEmpty
 	}
 
-	opts := &storage.SignedURLOptions{
-		GoogleAccessID: accessID,
-		PrivateKey:     privKey,
-		Method:         "GET",
-		Expires:        time.Now().UTC().Add(time.Minute * 5),
-	}
+	// opts := &storage.SignedURLOptions{
+	// 	GoogleAccessID: accessID,
+	// 	PrivateKey:     privKey,
+	// 	Method:         "GET",
+	// 	Expires:        time.Now().UTC().Add(time.Minute * 5),
+	// }
 
 	url, err := storage.SignedURL(bucketName, key, opts)
 	if err != nil {
