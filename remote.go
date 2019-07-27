@@ -113,6 +113,16 @@ func (gcloudAgent *GCloudStorageAgent) GetSignedURL(bucketName, key, accessID st
 	return &url, nil
 }
 
+// GetFile gets file and returns a stream
+func GetFile(path string) (out io.ReadCloser, length int64, err error) {
+	bucket, key, err := parsePath(url)
+	if err != nil {
+		return err
+	}
+
+	return getFile(bucket, key)
+}
+
 // getFile gets file object from GCloud and returns a readcloser
 func (gcloudAgent *GCloudStorageAgent) getFile(bucketName, key string) (out io.ReadCloser, length int64, err error) {
 	if bucketName == "" {
