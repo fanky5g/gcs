@@ -23,12 +23,16 @@ var (
 )
 
 // createFile creates a new file object on GCloud and returns
-func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, key, bucketName string) (*storage.ObjectAttrs, error) {
+func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, aclRules []storage.ACLRule, key, bucketName string) (*storage.ObjectAttrs, error) {
 	bucket := gcloudAgent.Bucket(bucketName)
 	ctx := context.Background()
 
 	object := bucket.Object(key)
 	wc := object.NewWriter(ctx)
+
+	// modify aclRules if exists
+	wc.ObjectAttrs.ACL = aclRules
+
 	if _, err := io.Copy(wc, r); err != nil {
 		return nil, err
 	}
@@ -46,7 +50,7 @@ func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, key, bucketName s
 }
 
 // Upload takes a request object and an optional key parameter and returns an UploadOutput object
-func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string, opts *storage.SignedURLOptions) (*FileMetadata, error) {
+func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string, aclRules []storage.ACLRule, opts *storage.SignedURLOptions) (*FileMetadata, error) {
 	if body == nil {
 		return nil, ErrBodyEmpty
 	}
@@ -65,7 +69,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 	}()
 
 	key := GenUniqueKey(filename)
-	ret, err := gcloudAgent.createFile(reader, key, bucketName)
+	ret, err := gcloudAgent.createFile(reader, aclRules, key, bucketName)
 
 	if err != nil {
 		return nil, err
