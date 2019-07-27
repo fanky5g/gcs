@@ -21,14 +21,18 @@ func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, opts *storage.Sign
 		LastModified: file.LastModified,
 	}
 
-	if strings.Contains(out.MimeType, "image") {
-		// get signed url
+	// get signed url
+	if opts != nil {
 		url, err := gcloudAgent.GetSignedURL(out.Bucket, out.Key, opts)
 		if err != nil {
 			return nil, err
 		}
 
-		imagetype, width, height, err := getImageMeta(*url)
+		out.URL = *url
+	}
+
+	if strings.Contains(out.MimeType, "image") {
+		imagetype, width, height, err := getImageMeta(out.URL)
 		// Do nothing for failed requests
 		if err == nil {
 			out.Image = &Image{

@@ -13,6 +13,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
+	"google.golang.org/api/iterator"
 )
 
 var (
@@ -259,4 +260,42 @@ func (gcloudAgent *GCloudStorageAgent) Download(url, dest string) error {
 	}
 
 	return nil
+}
+
+// ListObjects lists objects in bucket path sent
+func (gcloudAgent *GCloudStorageAgent) ListObjects(bucket string, query *storage.Query) ([]FileMetadata, error) {
+	bucketHandle := gcloudAgent.Bucket(bucket)
+	it := bucketHandle.Objects(context.Background(), query)
+	if it == nil {
+		return []FileMetadata{}, nil
+	}
+
+	var objects []FileMetadata
+	for {
+			ret, err := it.Next()
+			if err == iterator.Done {
+					break
+			}
+
+			if err != nil {
+				return objects, err
+			}
+
+			formatted, err := gcloudAgent.FormatFile(&File{
+				Bucket:     ret.Bucket,
+				Size:       uint64(ret.Size),
+				ActualSize: uint64(ret.Size),
+				Key:        ret.Name,
+				Location:   ret.MediaLink,
+				LastModified: ret.Updated,
+			}, nil)
+
+			if err != nil {
+				return objects, err
+			}
+
+			objects = append(objects, *formatted)
+	}
+
+	return objects, nil
 }
