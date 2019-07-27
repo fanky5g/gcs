@@ -8,7 +8,7 @@ import (
 )
 
 // FormatFile formats a file and returns its metadata
-func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, opts *storage.SignedURLOptions) (*FileMetadata, error) {
+func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, opts *storage.SignedURLOptions, formatImage bool) (*FileMetadata, error) {
 	mimetype := GetMimeType(file.Key)
 
 	out := &FileMetadata{
@@ -31,7 +31,7 @@ func (gcloudAgent *GCloudStorageAgent) FormatFile(file *File, opts *storage.Sign
 		out.URL = *url
 	}
 
-	if strings.Contains(out.MimeType, "image") {
+	if strings.Contains(out.MimeType, "image") && formatImage {
 		imagetype, width, height, err := getImageMeta(out.URL)
 		// Do nothing for failed requests
 		if err == nil {

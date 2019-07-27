@@ -84,7 +84,7 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		Key:        key,
 		Location:   ret.MediaLink,
 		LastModified: ret.Updated,
-	}, opts)
+	}, opts, false)
 
 	if err != nil {
 		return nil, err
@@ -289,7 +289,7 @@ func (gcloudAgent *GCloudStorageAgent) ListObjects(bucket string, query *storage
 				Key:        ret.Name,
 				Location:   ret.MediaLink,
 				LastModified: ret.Updated,
-			}, nil)
+			}, nil, false)
 
 			if err != nil {
 				return objects, err
