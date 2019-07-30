@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/url"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"log"
 	"sync"
@@ -52,7 +52,7 @@ func (gcloudAgent *GCloudStorageAgent) createFile(r io.Reader, aclRules []storag
 }
 
 // Upload takes a request object and an optional key parameter and returns an UploadOutput object
-func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string, aclRules []storage.ACLRule, opts *storage.SignedURLOptions) (*FileMetadata, error) {
+func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketName string, aclRules []storage.ACLRule, opts *storage.SignedURLOptions, preserveFileName bool) (*FileMetadata, error) {
 	if body == nil {
 		return nil, ErrBodyEmpty
 	}
@@ -70,7 +70,10 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 		size = uint64(s)
 	}()
 
-	key := filepath.Join(filepath.Dir(filename), GenUniqueKey(filename))
+	key := filename
+	if !preserveFileName {
+		key = filepath.Join(filepath.Dir(filename), GenUniqueKey(filename))
+	}
 	ret, err := gcloudAgent.createFile(reader, aclRules, key, bucketName)
 
 	if err != nil {
@@ -78,11 +81,11 @@ func (gcloudAgent *GCloudStorageAgent) Upload(body io.Reader, filename, bucketNa
 	}
 
 	formatted, err := gcloudAgent.FormatFile(&File{
-		Bucket:     ret.Bucket,
-		Size:       size,
-		ActualSize: uint64(ret.Size),
-		Key:        key,
-		Location:   ret.MediaLink,
+		Bucket:       ret.Bucket,
+		Size:         size,
+		ActualSize:   uint64(ret.Size),
+		Key:          key,
+		Location:     ret.MediaLink,
 		LastModified: ret.Updated,
 	}, opts, false)
 
@@ -273,29 +276,29 @@ func (gcloudAgent *GCloudStorageAgent) ListObjects(bucket string, query *storage
 
 	var objects []FileMetadata
 	for {
-			ret, err := it.Next()
-			if err == iterator.Done {
-					break
-			}
+		ret, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
 
-			if err != nil {
-				return objects, err
-			}
+		if err != nil {
+			return objects, err
+		}
 
-			formatted, err := gcloudAgent.FormatFile(&File{
-				Bucket:     ret.Bucket,
-				Size:       uint64(ret.Size),
-				ActualSize: uint64(ret.Size),
-				Key:        ret.Name,
-				Location:   ret.MediaLink,
-				LastModified: ret.Updated,
-			}, nil, false)
+		formatted, err := gcloudAgent.FormatFile(&File{
+			Bucket:       ret.Bucket,
+			Size:         uint64(ret.Size),
+			ActualSize:   uint64(ret.Size),
+			Key:          ret.Name,
+			Location:     ret.MediaLink,
+			LastModified: ret.Updated,
+		}, nil, false)
 
-			if err != nil {
-				return objects, err
-			}
+		if err != nil {
+			return objects, err
+		}
 
-			objects = append(objects, *formatted)
+		objects = append(objects, *formatted)
 	}
 
 	return objects, nil
